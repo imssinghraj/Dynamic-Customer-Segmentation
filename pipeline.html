@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #06080f;
+    --surface: #0d1117;
+    --border: rgba(255,255,255,0.06);
+    --accent1: #00e5ff;
+    --accent2: #7b61ff;
+    --accent3: #ff6b6b;
+    --accent4: #00ff88;
+    --text: #e8eaf0;
+    --muted: #5a6070;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 24px;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,229,255,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(123,97,255,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 680px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(32px, 6vw, 52px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* Pipeline */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .step {
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .step:nth-child(1)  { animation-delay: 0.1s; }
+  .step:nth-child(2)  { animation-delay: 0.15s; }
+  .step:nth-child(3)  { animation-delay: 0.2s; }
+  .step:nth-child(4)  { animation-delay: 0.25s; }
+  .step:nth-child(5)  { animation-delay: 0.3s; }
+  .step:nth-child(6)  { animation-delay: 0.35s; }
+  .step:nth-child(7)  { animation-delay: 0.4s; }
+  .step:nth-child(8)  { animation-delay: 0.45s; }
+  .step:nth-child(9)  { animation-delay: 0.5s; }
+
+  /* Left column: number + connector */
+  .step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 44px;
+  }
+
+  .step-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+    position: relative;
+    transition: transform 0.2s ease;
+    border: 1px solid transparent;
+  }
+
+  .step:hover .step-num {
+    transform: scale(1.08);
+  }
+
+  .connector {
+    flex: 1;
+    width: 2px;
+    background: linear-gradient(to bottom, currentColor, transparent);
+    margin: 4px 0;
+    opacity: 0.2;
+  }
+
+  .step:last-child .connector { display: none; }
+
+  /* Card */
+  .step-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    cursor: default;
+  }
+
+  .step-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, currentColor, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .step:hover .step-card {
+    transform: translateX(4px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .step:hover .step-card::before {
+    opacity: 0.4;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .card-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+
+  .card-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+    padding-left: 32px;
+  }
+
+  /* Tag */
+  .card-tag {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    opacity: 0.6;
+    border: 1px solid currentColor;
+  }
+
+  /* Color themes per step */
+  .s1 .step-num { background: rgba(0,229,255,0.1); color: var(--accent1); border-color: rgba(0,229,255,0.2); }
+  .s1 .step-card { --c: var(--accent1); }
+  .s1 .step-card:hover { border-color: rgba(0,229,255,0.3); }
+  .s1 .card-title { color: var(--accent1); }
+  .s1 .connector, .s1 .card-tag, .s1 .step-card::before { color: var(--accent1); }
+
+  .s2 .step-num { background: rgba(0,200,150,0.1); color: #00c896; border-color: rgba(0,200,150,0.2); }
+  .s2 .step-card:hover { border-color: rgba(0,200,150,0.3); }
+  .s2 .card-title { color: #00c896; }
+  .s2 .connector, .s2 .card-tag, .s2 .step-card::before { color: #00c896; }
+
+  .s3 .step-num { background: rgba(255,193,7,0.1); color: #ffc107; border-color: rgba(255,193,7,0.2); }
+  .s3 .step-card:hover { border-color: rgba(255,193,7,0.3); }
+  .s3 .card-title { color: #ffc107; }
+  .s3 .connector, .s3 .card-tag, .s3 .step-card::before { color: #ffc107; }
+
+  .s4 .step-num { background: rgba(123,97,255,0.1); color: var(--accent2); border-color: rgba(123,97,255,0.2); }
+  .s4 .step-card:hover { border-color: rgba(123,97,255,0.3); }
+  .s4 .card-title { color: var(--accent2); }
+  .s4 .connector, .s4 .card-tag, .s4 .step-card::before { color: var(--accent2); }
+
+  .s5 .step-num { background: rgba(255,107,107,0.1); color: var(--accent3); border-color: rgba(255,107,107,0.2); }
+  .s5 .step-card:hover { border-color: rgba(255,107,107,0.3); }
+  .s5 .card-title { color: var(--accent3); }
+  .s5 .connector, .s5 .card-tag, .s5 .step-card::before { color: var(--accent3); }
+
+  .s6 .step-num { background: rgba(0,255,136,0.08); color: var(--accent4); border-color: rgba(0,255,136,0.2); }
+  .s6 .step-card:hover { border-color: rgba(0,255,136,0.3); }
+  .s6 .card-title { color: var(--accent4); }
+  .s6 .connector, .s6 .card-tag, .s6 .step-card::before { color: var(--accent4); }
+
+  .s7 .step-num { background: rgba(240,100,180,0.1); color: #f064b4; border-color: rgba(240,100,180,0.2); }
+  .s7 .step-card:hover { border-color: rgba(240,100,180,0.3); }
+  .s7 .card-title { color: #f064b4; }
+  .s7 .connector, .s7 .card-tag, .s7 .step-card::before { color: #f064b4; }
+
+  .s8 .step-num { background: rgba(64,180,255,0.1); color: #40b4ff; border-color: rgba(64,180,255,0.2); }
+  .s8 .step-card:hover { border-color: rgba(64,180,255,0.3); }
+  .s8 .card-title { color: #40b4ff; }
+  .s8 .connector, .s8 .card-tag, .s8 .step-card::before { color: #40b4ff; }
+
+  .s9 .step-num { background: rgba(255,160,50,0.1); color: #ffa032; border-color: rgba(255,160,50,0.2); }
+  .s9 .step-card:hover { border-color: rgba(255,160,50,0.3); }
+  .s9 .card-title { color: #ffa032; }
+  .s9 .connector, .s9 .card-tag, .s9 .step-card::before { color: #ffa032; }
+
+  /* Final glow on last step */
+  .s9 .step-card {
+    box-shadow: 0 0 0 1px rgba(255,160,50,0.1), 0 0 40px rgba(255,160,50,0.05);
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <div class="header-label">Analytics Architecture</div>
+    <h1>Project Pipeline</h1>
+    <p>"The project follows a structured analytics pipeline."</p>
+  </div>
+
+  <div class="pipeline">
+
+    <div class="step s1">
+      <div class="step-left">
+        <div class="step-num">01</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Input</div>
+        <div class="card-top">
+          <span class="card-icon">🗄️</span>
+          <span class="card-title">Data Collection</span>
+        </div>
+        <div class="card-desc">Gather raw data from all relevant sources and systems</div>
+      </div>
+    </div>
+
+    <div class="step s2">
+      <div class="step-left">
+        <div class="step-num">02</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Process</div>
+        <div class="card-top">
+          <span class="card-icon">🧹</span>
+          <span class="card-title">Data Cleaning & Preprocessing</span>
+        </div>
+        <div class="card-desc">Normalize, deduplicate, and handle missing values</div>
+      </div>
+    </div>
+
+    <div class="step s3">
+      <div class="step-left">
+        <div class="step-num">03</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Transform</div>
+        <div class="card-top">
+          <span class="card-icon">⚙️</span>
+          <span class="card-title">Feature Engineering</span>
+        </div>
+        <div class="card-desc">Derive meaningful attributes and behavioral indicators</div>
+      </div>
+    </div>
+
+    <div class="step s4">
+      <div class="step-left">
+        <div class="step-num">04</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Score</div>
+        <div class="card-top">
+          <span class="card-icon">📊</span>
+          <span class="card-title">RFM Scoring</span>
+        </div>
+        <div class="card-desc">Recency, frequency, and monetary value quantification</div>
+      </div>
+    </div>
+
+    <div class="step s5">
+      <div class="step-left">
+        <div class="step-num">05</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Cluster</div>
+        <div class="card-top">
+          <span class="card-icon">🔬</span>
+          <span class="card-title">Advanced Segmentation</span>
+        </div>
+        <div class="card-desc">Cluster users into actionable behavioral segments</div>
+      </div>
+    </div>
+
+    <div class="step s6">
+      <div class="step-left">
+        <div class="step-num">06</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Analyze</div>
+        <div class="card-top">
+          <span class="card-icon">📅</span>
+          <span class="card-title">Dynamic Time-Based Comparison</span>
+        </div>
+        <div class="card-desc">Track evolution across cohorts and time windows</div>
+      </div>
+    </div>
+
+    <div class="step s7">
+      <div class="step-left">
+        <div class="step-num">07</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Enrich</div>
+        <div class="card-top">
+          <span class="card-icon">🔗</span>
+          <span class="card-title">Engagement Integration</span>
+        </div>
+        <div class="card-desc">Layer in product and interaction signals for richer profiles</div>
+      </div>
+    </div>
+
+    <div class="step s8">
+      <div class="step-left">
+        <div class="step-num">08</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Visualize</div>
+        <div class="card-top">
+          <span class="card-icon">📈</span>
+          <span class="card-title">Dashboard Visualization</span>
+        </div>
+        <div class="card-desc">Interactive charts and live metrics for stakeholders</div>
+      </div>
+    </div>
+
+    <div class="step s9">
+      <div class="step-left">
+        <div class="step-num">09</div>
+        <div class="connector"></div>
+      </div>
+      <div class="step-card">
+        <div class="card-tag">Output</div>
+        <div class="card-top">
+          <span class="card-icon">💡</span>
+          <span class="card-title">Business Insights</span>
+        </div>
+        <div class="card-desc">Actionable recommendations driving strategic decisions</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
